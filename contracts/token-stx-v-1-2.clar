@@ -302,3 +302,23 @@
 (define-read-only (get-minting-enabled)
     (ok (var-get minting-enabled))
 )
+
+(define-data-var paused bool false)
+
+(define-public (set-paused (pause bool))
+    (begin
+        (asserts! (is-eq tx-sender (var-get contract-owner)) ERR_NOT_AUTHORIZED)
+        (var-set paused pause)
+        
+        (print {
+            event: "contract_paused",
+            paused: pause,
+            caller: tx-sender
+        })
+        
+        (ok true)
+    )
+)
+
+;; Add to transfer function:
+;; (asserts! (not (var-get paused)) (err u5)) ;; ERR_CONTRACT_PAUSED
